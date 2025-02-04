@@ -90,11 +90,12 @@ export default function BoxList() {
 
       <Grid2 container spacing={3}>
         {boxes.map((box) => (
-          <Grid2 item xs={12} sm={6} md={4} key={box.id}>
+          <Grid2 key={box.id}>
             <Card
               sx={{
                 height: "100%",
                 display: "flex",
+                borderRadius: "20px",
                 flexDirection: "column",
                 transition: "transform 0.2s",
                 "&:hover": {
