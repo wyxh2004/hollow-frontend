@@ -6,13 +6,12 @@ import {
   CardActions,
   Typography,
   Grid2,
-  Box,
-  CircularProgress,
   Container,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import useSWR from "swr";
+import Loading from "../Loading";
 
 interface BoxItem {
   id: string;
@@ -21,52 +20,22 @@ interface BoxItem {
   created_at: string;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function BoxList() {
-  const [boxes, setBoxes] = useState<BoxItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    fetchBoxes();
-  }, []);
-
-  const fetchBoxes = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/api/boxes");
-      setBoxes(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError("获取留言盒子列表失败");
-      setLoading(false);
-      console.error("Error fetching boxes:", err);
+  const { data: boxes, isLoading } = useSWR<BoxItem[]>(
+    "http://localhost:8080/api/boxes",
+    fetcher,
+    {
+      revalidateOnFocus: false, // 当页面重新获得焦点时不重新获取数据
+      refreshInterval: 30000, // 每30秒自动刷新一次
     }
-  };
+  );
 
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="50vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="50vh"
-      >
-        <Typography color="error">{error}</Typography>
-      </Box>
-    );
+  if (isLoading) {
+    return <Loading />;
   }
 
   return (
@@ -89,13 +58,13 @@ export default function BoxList() {
       </Button>
 
       <Grid2 container spacing={3}>
-        {boxes.map((box) => (
+        {boxes?.map((box) => (
           <Grid2 key={box.id}>
             <Card
               sx={{
                 height: "100%",
                 display: "flex",
-                borderRadius: "20px",
+                borderRadius: "10px",
                 flexDirection: "column",
                 transition: "transform 0.2s",
                 "&:hover": {
@@ -128,9 +97,7 @@ export default function BoxList() {
                 <Button
                   size="small"
                   onClick={() => {
-                    // TODO: 跳转到盒子详情页
-                    // window.location.href = `/box/${box.id}`;
-                    router.push(`/box/${box.id}`);
+                    router.push(`/boxes/${box.id}`);
                   }}
                 >
                   查看留言
