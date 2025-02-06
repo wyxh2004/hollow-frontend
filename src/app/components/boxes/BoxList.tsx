@@ -47,14 +47,14 @@ export default function BoxList() {
           borderRadius: "10px",
           display: "flex",
           margin: "auto",
-          marginTop: "12vh",
+          marginTop: "5vh",
           marginBottom: "3vh",
         }}
         onClick={() => {
-          alert("clicked");
+          router.push("/boxes/new");
         }}
       >
-        发布留言
+        发布话题
       </Button>
 
       <Grid2 container spacing={3}>
